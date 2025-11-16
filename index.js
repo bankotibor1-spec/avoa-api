@@ -1,10 +1,11 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { OpenAI } = require('openai');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -18,7 +19,7 @@ app.post('/chat', async (req, res) => {
     const { messages, systemPrompt } = req.body;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-turbo",
       messages: [
         ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
         ...messages
@@ -33,5 +34,5 @@ app.post('/chat', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`🚀 Avoa API is running on http://localhost:${port}`);
+  console.log(`ðŸš€ Avoa API is running on http://localhost:${port}`);
 });
