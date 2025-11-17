@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -33,6 +32,12 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// ✅ Dodamo ping endpoint
+app.get("/", (req, res) => {
+  res.send("🟢 Server is awake!");
+});
+
+// ✅ App start
 app.listen(port, () => {
-  console.log(`ðŸš€ Avoa API is running on http://localhost:${port}`);
+  console.log(`🚀 Avoa API is running on http://localhost:${port}`);
 });
