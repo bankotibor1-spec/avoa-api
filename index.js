@@ -17,20 +17,26 @@ app.post('/chat', async (req, res) => {
   try {
     const { messages, systemPrompt } = req.body;
 
-    // ⛔️ Validacija: preveri da je "content" array z objekti, ne stringi
-    const formattedMessages = messages.map(msg => {
+    const formattedMessages = messages.map(message => {
+      const formattedContent = message.content.map(part => {
+        if (part.type === 'text') {
+          return {
+            type: 'text',
+            text: part.text
+          };
+        } else if (part.type === 'image_url') {
+          return {
+            type: 'image_url',
+            image_url: {
+              url: part.image_url?.url || '' // <- tukaj preverimo, da obstaja `url`
+            }
+          };
+        }
+      }).filter(Boolean); // odstrani undefined
+
       return {
-        role: msg.role,
-        content: msg.content.map(part => {
-          if (part.type === "text") {
-            return { type: "text", text: part.text };
-          } else if (part.type === "image_url") {
-            return {
-              type: "image_url",
-              image_url: { url: part.image_url.url }
-            };
-          }
-        })
+        role: message.role,
+        content: formattedContent
       };
     });
 
@@ -44,12 +50,12 @@ app.post('/chat', async (req, res) => {
 
     res.json({ reply: response.choices[0].message.content });
   } catch (err) {
-    console.error("❌ Error:", err);
+    console.error("❌ Error:", err?.response?.data || err.message);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// ✅ Ping endpoint za “wake-up”
+// ✅ Ping endpoint
 app.get("/", (req, res) => {
   res.send("🟢 Server is awake!");
 });
