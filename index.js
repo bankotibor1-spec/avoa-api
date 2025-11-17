@@ -22,22 +22,22 @@ app.post('/chat', async (req, res) => {
       messages: [
         ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
         ...messages
-      ]
+      ],
+      max_tokens: 1000
     });
 
     res.json({ reply: response.choices[0].message.content });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// ✅ Dodamo ping endpoint
+// ✅ Wake-up endpoint
 app.get("/", (req, res) => {
   res.send("🟢 Server is awake!");
 });
 
-// ✅ App start
 app.listen(port, () => {
   console.log(`🚀 Avoa API is running on http://localhost:${port}`);
 });
