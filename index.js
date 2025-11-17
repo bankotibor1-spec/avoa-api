@@ -13,50 +13,45 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// ✅ Wake-up ping endpoint
-app.get("/", (req, res) => {
-  res.send("🟢 Server is awake!");
-});
-
 app.post('/chat', async (req, res) => {
   try {
     const { messages, systemPrompt } = req.body;
 
-    // 🔄 Pretvori content v pravilen format za slike
-    const convertedMessages = messages.map((msg) => ({
-      role: msg.role,
-      content: msg.content.map(part => {
-        if (part.type === 'text') {
-          return {
-            type: 'text',
-            text: part.text
-          };
-        } else if (part.type === 'image_url') {
-          return {
-            type: 'image_url',
-            image_url: {
-              url: part.image_url.url
-            }
-          };
-        }
-      })
-    }));
+    // ⛔️ Validacija: preveri da je "content" array z objekti, ne stringi
+    const formattedMessages = messages.map(msg => {
+      return {
+        role: msg.role,
+        content: msg.content.map(part => {
+          if (part.type === "text") {
+            return { type: "text", text: part.text };
+          } else if (part.type === "image_url") {
+            return {
+              type: "image_url",
+              image_url: { url: part.image_url.url }
+            };
+          }
+        })
+      };
+    });
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo",
       messages: [
         ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
-        ...convertedMessages
-      ],
-      max_tokens: 1000
+        ...formattedMessages
+      ]
     });
 
     res.json({ reply: response.choices[0].message.content });
-
   } catch (err) {
     console.error("❌ Error:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
+});
+
+// ✅ Ping endpoint za “wake-up”
+app.get("/", (req, res) => {
+  res.send("🟢 Server is awake!");
 });
 
 app.listen(port, () => {
