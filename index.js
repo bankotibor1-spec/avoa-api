@@ -13,18 +13,17 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// 🔁 Wake-up ping endpoint
-app.get('/', (req, res) => {
-  res.send('🟢 Server is awake!');
+// ✅ Wake-up ping endpoint
+app.get("/", (req, res) => {
+  res.send("🟢 Server is awake!");
 });
 
-// 🔁 Main chat endpoint
 app.post('/chat', async (req, res) => {
   try {
     const { messages, systemPrompt } = req.body;
 
-    // ✅ Pravilno pretvori sporočila (z image_url kot objekt)
-    const convertedMessages = messages.map(msg => ({
+    // 🔄 Pretvori content v pravilen format za slike
+    const convertedMessages = messages.map((msg) => ({
       role: msg.role,
       content: msg.content.map(part => {
         if (part.type === 'text') {
@@ -36,7 +35,7 @@ app.post('/chat', async (req, res) => {
           return {
             type: 'image_url',
             image_url: {
-              url: part.image_url.url // ✅ objekt, ne string
+              url: part.image_url.url
             }
           };
         }
@@ -44,22 +43,22 @@ app.post('/chat', async (req, res) => {
     }));
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: "gpt-4-turbo",
       messages: [
-        ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+        ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
         ...convertedMessages
       ],
       max_tokens: 1000
     });
 
     res.json({ reply: response.choices[0].message.content });
+
   } catch (err) {
-    console.error('❌ Error in /chat handler:', err);
-    res.status(500).json({ error: 'Something went wrong' });
+    console.error("❌ Error:", err);
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// 🚀 Start server
 app.listen(port, () => {
   console.log(`🚀 Avoa API is running on http://localhost:${port}`);
 });
