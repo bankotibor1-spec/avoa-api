@@ -33,10 +33,10 @@ app.post('/chat', async (req, res) => {
     ];
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview", // ✅ model, ki podpira slike
-      messages: formattedMessages,
-      max_tokens: 1000
-    });
+  model: "gpt-4o", // ✅ posodobljeno
+  messages: [...],
+  max_tokens: 1000
+});
 
     res.json({ reply: response.choices[0].message.content });
   } catch (err) {
